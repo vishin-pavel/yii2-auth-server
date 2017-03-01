@@ -12,6 +12,13 @@ class m170301_143552_create_clients_table extends Migration
      */
     public function up()
     {
+
+        $tableOptions = null;
+        if ($this->db->driverName === 'mysql') {
+            // http://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci
+            $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
+        }
+
         $this->createTable('clients', [
             'uuid' => $this->string(32)->notNull(),
             'name' => $this->string(),
@@ -19,10 +26,10 @@ class m170301_143552_create_clients_table extends Migration
             'redirect' => $this->text(),
             'password_client' => $this->boolean(),
             'revoked' => $this->boolean()->notNull()->defaultValue(0),
-            'created_at' => $this->timestamp(),
-            'updated_at' => $this->timestamp(),
+            'created_at' => $this->integer()->notNull(),
+            'updated_at' => $this->integer()->notNull(),
             'PRIMARY KEY(uuid)'
-        ]);
+        ], $tableOptions);
     }
 
     /**

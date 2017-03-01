@@ -24,13 +24,11 @@ class m170301_075046_create_oauth_access_tokens_table extends Migration
             'client_uuid' => $this->string(32)->notNull(),
             'scopes' => $this->text(),
             'revoked' => $this->boolean()->notNull()->defaultValue(0),
-            'created_at' => $this->timestamp(),
-            'updated_at' => $this->timestamp(),
-            'expires_at' => $this->timestamp(),
+            'created_at' => $this->integer()->notNull(),
+            'updated_at' => $this->integer()->notNull(),
+            'expires_at' => $this->integer()->notNull(),
             'PRIMARY KEY(uuid)'
         ], $tableOptions);
-        $this->addForeignKey('fk_access_token_identity', 'oauth_access_tokens', 'identity_uuid', 'identity', 'uuid');
-        $this->addForeignKey('fk_access_token_client', 'oauth_access_tokens', 'client_uuid', 'client', 'uuid');
     }
 
     /**
@@ -38,8 +36,6 @@ class m170301_075046_create_oauth_access_tokens_table extends Migration
      */
     public function down()
     {
-        $this->dropForeignKey('fk_access_token_identity', 'oauth_access_tokens');
-        $this->dropForeignKey('fk_access_token_client', 'oauth_access_tokens');
         $this->dropTable('oauth_access_tokens');
     }
 }

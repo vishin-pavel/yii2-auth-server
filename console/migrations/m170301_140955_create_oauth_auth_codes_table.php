@@ -7,24 +7,31 @@ use yii\db\Migration;
  */
 class m170301_140955_create_oauth_auth_codes_table extends Migration
 {
+
     /**
      * @inheritdoc
      */
     public function up()
     {
+
+        $tableOptions = null;
+        if ($this->db->driverName === 'mysql') {
+            // http://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci
+            $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
+        }
+
         $this->createTable('oauth_auth_codes', [
             'uuid' => $this->string(32)->notNull(),
             'identity_uuid' => $this->string(32),
             'client_uuid' => $this->string(32)->notNull(),
             'scopes' => $this->text(),
             'revoked' => $this->boolean()->notNull()->defaultValue(0),
-            'created_at' => $this->timestamp(),
-            'updated_at' => $this->timestamp(),
-            'expires_at' => $this->timestamp(),
+            'created_at' => $this->integer()->notNull(),
+            'updated_at' => $this->integer()->notNull(),
+            'expires_at' => $this->integer()->notNull(),
             'PRIMARY KEY(uuid)'
-        ]);
+        ], $tableOptions);
 
-        $this->addForeignKey('fk_auth_code_identity', 'oauth_auth_codes', 'identity_uuid', 'identity', 'uuid');
     }
 
     /**
@@ -32,7 +39,6 @@ class m170301_140955_create_oauth_auth_codes_table extends Migration
      */
     public function down()
     {
-        $this->dropForeignKey('fk_auth_code_identity', 'oauth_auth_codes');
         $this->dropTable('oauth_auth_codes');
     }
 }

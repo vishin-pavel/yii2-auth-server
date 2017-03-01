@@ -12,16 +12,22 @@ class m170301_141845_create_oauth_refresh_tokens_table extends Migration
      */
     public function up()
     {
+
+        $tableOptions = null;
+        if ($this->db->driverName === 'mysql') {
+            // http://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci
+            $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
+        }
+
         $this->createTable('oauth_refresh_tokens', [
             'uuid' => $this->string(32)->notNull(),
             'access_token_uuid' => $this->string(32),
             'revoked' => $this->boolean()->notNull()->defaultValue(0),
-            'created_at' => $this->timestamp(),
-            'updated_at' => $this->timestamp(),
-            'expires_at' => $this->timestamp(),
+            'created_at' => $this->integer()->notNull(),
+            'updated_at' => $this->integer()->notNull(),
+            'expires_at' => $this->integer()->notNull(),
             'PRIMARY KEY(uuid)'
-        ]);
-        $this->addForeignKey('fk_refresh_token_access_token', 'oauth_refresh_tokens', 'user_uuid', 'user', 'uuid');
+        ], $tableOptions);
     }
 
     /**
@@ -29,7 +35,6 @@ class m170301_141845_create_oauth_refresh_tokens_table extends Migration
      */
     public function down()
     {
-        $this->dropForeignKey('fk_refresh_token_access_token', 'oauth_refresh_tokens');
         $this->dropTable('oauth_refresh_tokens');
     }
 }
