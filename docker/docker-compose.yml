@@ -1,0 +1,96 @@
+#yii2-auth-server-memcached:
+#  image: phpdockerio/memcached:latest
+#  container_name: yii2-auth-server-memcached
+#
+#yii2-auth-server-redis:
+#  image: redis
+#  container_name: yii2-auth-server-redis
+#  volumes:
+#      - ./redis/data:/data
+#
+#yii2-auth-server-mongo:
+#  image: mongo
+#  container_name: yii2-auth-server-mongo
+#  volumes:
+#      - ./mongo/data:/data/db
+#
+#yii2-auth-server-rabbit:
+#  image: rabbitmq
+#  container_name: yii2-auth-server-rabbit
+#
+#yii2-auth-server-mailhog:
+#  image: phpdockerio/mailhog:latest
+#  container_name: yii2-auth-server-mailhog
+#  ports:
+#    - "8102:8025"
+#
+yii2-auth-server-mysql:
+  image: mysql
+  container_name: yii2-auth-server-mysql
+  env_file:
+    - db.env
+  volumes:
+      - ./mariadb/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - ./mariadb/data:/var/lib/mysql
+
+yii2-auth-server-webserver:
+  image: xdrum/nginx-extras
+  container_name: yii2-auth-server-webserver
+  volumes:
+      - ../:/var/www/yii2-auth-server
+      - ./nginx/nginx.conf:/etc/nginx/sites-enabled/default
+  ports:
+   - "8101:80"
+   - "8102:81"
+  links:
+   - yii2-auth-server-front-php-fpm
+   - yii2-auth-server-back-php-fpm
+
+#yii2-auth-server-sphinx:
+#  build: sphinx/
+#  dockerfile: Dockerfile
+#  container_name: yii2-auth-server-sphinx
+#  expose:
+#    - "3312"
+#    - "3320"
+#  volumes:
+#    - ./sphinx/index:/sphinx-index
+#    - ./sphinx/conf/sphinx.conf:/sphinx-conf/sphinx.conf
+#
+yii2-auth-server-front-php-fpm:
+  build: .
+  dockerfile: php-fpm/Dockerfile
+  container_name: yii2-auth-server-front-php-fpm
+  volumes:
+    - ../:/var/www/yii2-auth-server
+    - ./php-fpm/php-ini-overrides.ini:/etc/php/7.0/fpm/conf.d/99-overrides.ini
+  env_file:
+    - yii2.env
+
+  links:
+#    - yii2-auth-server-memcached
+#    - yii2-auth-server-mailhog
+    - yii2-auth-server-mysql
+#    - yii2-auth-server-sphinx
+#    - yii2-auth-server-redis
+#    - yii2-auth-server-mongo
+#    - yii2-auth-server-rabbit
+
+yii2-auth-server-back-php-fpm:
+  build: .
+  dockerfile: php-fpm/Dockerfile
+  container_name: yii2-auth-server-back-php-fpm
+  volumes:
+    - ../:/var/www/yii2-auth-server
+    - ./php-fpm/php-ini-overrides.ini:/etc/php/7.0/fpm/conf.d/99-overrides.ini
+  env_file:
+    - yii2.env
+
+  links:
+#    - yii2-auth-server-memcached
+#    - yii2-auth-server-mailhog
+    - yii2-auth-server-mysql
+#    - yii2-auth-server-sphinx
+#    - yii2-auth-server-redis
+#    - yii2-auth-server-mongo
+#    - yii2-auth-server-rabbit
